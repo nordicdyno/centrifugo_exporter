@@ -41,5 +41,6 @@ All metrics are exported as gauges for simplicity (should change in near future)
 ## TODO
 
 * use counters in exported metrics for actual counters
+* register port on https://github.com/prometheus/prometheus/wiki/Default-port-allocations
 * binaries on releases page
 * docker support

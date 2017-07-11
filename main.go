@@ -20,7 +20,7 @@ const (
 	namespace = "centrifugo"
 )
 
-// Exporter collects Consul stats from the given server and exports them using
+// Exporter collects Centrifugo stats from the given server and exports them using
 // the prometheus metrics package.
 type Exporter struct {
 	mutex        sync.Mutex
@@ -88,7 +88,6 @@ func NewExporter(opts centOpts) (*Exporter, error) {
 			Name:      "up",
 			Help:      "Was the last scrape of haproxy successful.",
 		}),
-		// https://fzambia.gitbooks.io/centrifugal/content/server/stats.html
 		gaugeMetrics: gmm,
 	}, nil
 }
@@ -105,7 +104,7 @@ func newGaugeMetric(metricName string, docString string, constLabels prometheus.
 	)
 }
 
-// Describe describes all the metrics ever exported by the Consul exporter. It
+// Describe describes all the metrics ever exported by the Centrifugo exporter. It
 // implements prometheus.Collector.
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	for _, m := range e.gaugeMetrics {
@@ -114,7 +113,7 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.up.Desc()
 }
 
-// Collect fetches the stats from configured Consul location and delivers them
+// Collect fetches the stats from configured Centrifugo location and delivers them
 // as Prometheus metrics. It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	// TODO: check is necessary
@@ -150,8 +149,7 @@ func (e *Exporter) scrape() {
 
 func main() {
 	var (
-		showVersion = flag.Bool("version", false, "Print version information.")
-		// check https://github.com/prometheus/prometheus/wiki/Default-port-allocations before publishing
+		showVersion   = flag.Bool("version", false, "Print version information.")
 		listenAddress = flag.String("web.listen-address", ":9273", "Address to listen on for web interface and telemetry.")
 		metricsPath   = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 
