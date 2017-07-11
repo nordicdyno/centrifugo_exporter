@@ -20,10 +20,6 @@ const (
 	namespace = "centrifugo"
 )
 
-var (
-	nodeLabelNames = []string{"node"}
-)
-
 // Exporter collects Consul stats from the given server and exports them using
 // the prometheus metrics package.
 type Exporter struct {
@@ -105,7 +101,7 @@ func newGaugeMetric(metricName string, docString string, constLabels prometheus.
 			Help:        docString,
 			ConstLabels: constLabels,
 		},
-		nodeLabelNames,
+		nil,
 	)
 }
 
@@ -137,21 +133,17 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 }
 
 func (e *Exporter) scrape() {
-	stats, err := e.client.Stats()
+	metrics, err := nodeMetrics(e.client)
 	if err != nil {
 		e.up.Set(0)
 		log.Printf("Can't scrape centrifugo: %v", err)
 		return
 	}
-	// fmt.Printf("Stat: %+v\n", stats)
+
 	e.up.Set(1)
-	for _, nodeStat := range stats.Nodes {
-		for name, value := range nodeStat.Metrics {
-			if gauge, ok := e.gaugeMetrics[name]; ok {
-				// _, _ = gauge, value
-				// log.Printf("label: %v=%v", "node", nodeStat.Name)
-				gauge.WithLabelValues(nodeStat.Name).Set(float64(value))
-			}
+	for name, value := range metrics {
+		if gauge, ok := e.gaugeMetrics[name]; ok {
+			gauge.WithLabelValues().Set(value)
 		}
 	}
 }
@@ -172,7 +164,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Println("version 0.0.1")
+		fmt.Println("version 0.1.0")
 		os.Exit(0)
 	}
 
