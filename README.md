@@ -22,6 +22,7 @@ Supports most important metrics for now, ignores aggregates like percentiles cal
 
 Metrics list:
 
+* `up` - is scrape succesful or not
 * `client_bytes_in_total` - number of bytes coming to client API (bytes sent from clients)
 * `client_bytes_out_total` - number of bytes coming out of client API (bytes sent to clients)
 * `client_num_connectz` - number of connections of client API
@@ -36,3 +37,9 @@ Metrics list:
 * `http_api_num_requests` - number of requests to server HTTP API
 
 All metrics are exported as gauges for simplicity (should change in near future)
+
+## TODO
+
+* use counters in exported metrics for actual counters
+* binaries on releases page
+* docker support
