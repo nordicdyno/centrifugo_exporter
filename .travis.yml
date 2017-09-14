@@ -3,7 +3,7 @@ go:
 - "1.9"
 
 before_deploy:
-  - GOOS=linux GOARCH=amd64 go build -ldflags "-X main.VERSION=${TRAVIS_TAG}"" -o centrifugo_exporter
+  - GOOS=linux GOARCH=amd64 go build -ldflags "-X main.VERSION=${TRAVIS_TAG}" -o centrifugo_exporter
   - tar -czf centrifugo_exporter-$TRAVIS_TAG-linux-amd64.tgz centrifugo_exporter
 
 deploy:
