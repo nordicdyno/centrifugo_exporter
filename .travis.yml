@@ -1,10 +1,10 @@
 language: go
 go:
-- "1.8"
+- "1.9"
 
 before_deploy:
-  - "GOOS=linux GOARCH=amd64 go build -ldflags '-X main.VERSION=${VERSION}' -o centrifugo_exporter"
-  - "tar -czf centrifugo_exporter-v$VERSION-linux-amd64.tgz centrifugo_exporter"
+  - GOOS=linux GOARCH=amd64 go build -ldflags "-X main.VERSION=${TRAVIS_TAG}"" -o centrifugo_exporter
+  - tar -czf centrifugo_exporter-$TRAVIS_TAG-linux-amd64.tgz centrifugo_exporter
 
 deploy:
   provider: releases
@@ -14,5 +14,5 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    go: "1.8"
+    go: "1.9"
 #    repo: nordicdyno/centrifugo_exporter
