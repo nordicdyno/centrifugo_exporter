@@ -10,7 +10,7 @@ deploy:
   provider: releases
   api_key:
     secure: rCuw1pObXOJtPOsz9r/pOHceQmERt9LCdIAvLm+FK2Mf9x4hHjgxDbxXCYBuWBjsOUTIVYmJT2u485sVrjZv9F2tzHCtWz/2deyw539OC0g9dZraB46WOo3PCJu/Oc0Kqb2m2K/HiHiPzqNCxlkoGJZMl9bnrWBRVdSewULwrPGspPA6SFVqr2eKn7rI+BPHFpA2F3fBm6vB0RSJiXJEfH4wpprBxvXKIIXcBEpw1hCc1geTyXjSdDLDjKpwsFWDVNEkPJ+PIrn9JytwLXFBMt1rvlnDrqV+856J40pmyBGIj26RNqqxKtVBOCyRVTf4TvfQHDvEraizggrAPOpTWEc9UHIpyZZ0lxS183EsOcKLTwrl6oXMguqiG+GdjE6UDT/DSQV3uEUvuXVHdw1rTMCUZzkZttcHJ/RNIUNi8JE/51DTmLDyHp/VBh1Oj/H3GT247kdqERfhV54ovOKqhypgbXlNcgaQ/XmsWJcqhamIWtl0NCWZgWzl6VG5W/Wa9aLfKl0sXT9nCeWHVzk6aN8I9+5o+vaTS9LJFk41M2Kh/Xl+yR3H//XPAnA5cGAXtOxlf+mWkn11o+Vpkkym7jBV3mCc5PLSQj6iAeJJ4QkviVrIGlUy1D3Ig9FMVFU1KExkul+1CEEqYdSvmbuFpU51cgK6pebQNb6cP0ilc5Q=
-  file: centrifugo_exporter-v$TRAVIS_TAG-linux-amd64.tgz
+  file: centrifugo_exporter-$TRAVIS_TAG-linux-amd64.tgz
   skip_cleanup: true
   on:
     tags: true
