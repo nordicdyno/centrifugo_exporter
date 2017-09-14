@@ -20,6 +20,8 @@ const (
 	namespace = "centrifugo"
 )
 
+var VERSION = "unknown"
+
 // Exporter collects Centrifugo stats from the given server and exports them using
 // the prometheus metrics package.
 type Exporter struct {
@@ -162,7 +164,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Println("version 0.1.0")
+		fmt.Println("version", VERSION)
 		os.Exit(0)
 	}
 
