@@ -1,4 +1,4 @@
-# Centrifugo exporter
+# Centrifugo exporter [![Build Status](https://travis-ci.org/nordicdyno/centrifugo_exporter.svg)][travis]
 
 prometheus exporter for [centrifugo](https://github.com/centrifugal/centrifugo) server
 
