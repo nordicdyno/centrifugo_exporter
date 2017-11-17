@@ -37,8 +37,7 @@ type centOpts struct {
 	timeout time.Duration
 }
 
-// NewExporter returns an initialized Exporter.
-func NewExporter(opts centOpts) (*Exporter, error) {
+func newCentClient(opts centOpts) (*gocent.Client, error) {
 	uri := opts.uri
 	if !strings.Contains(uri, "://") {
 		uri = "http://" + uri
@@ -51,11 +50,15 @@ func NewExporter(opts centOpts) (*Exporter, error) {
 		return nil, fmt.Errorf("invalid centrifugo URL: %s", uri)
 	}
 
-	cent := gocent.NewClient(uri, opts.secret, opts.timeout)
+	c := gocent.NewClient(uri, opts.secret, opts.timeout)
 	if u.Path != "" {
-		cent.Endpoint = uri
+		c.Endpoint = uri
 	}
+	return c, nil
+}
 
+// NewExporter returns an initialized Exporter.
+func NewExporter(centClient *gocent.Client) (*Exporter, error) {
 	gmm := map[string]*prometheus.GaugeVec{
 		"client_bytes_in": newGaugeMetric("client_bytes_in_total",
 			"number of bytes coming to client API (bytes sent from clients)", nil),
@@ -84,7 +87,7 @@ func NewExporter(opts centOpts) (*Exporter, error) {
 	}
 
 	return &Exporter{
-		client: cent,
+		client: centClient,
 		up: prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace: namespace,
 			Name:      "up",
@@ -168,7 +171,11 @@ func main() {
 		os.Exit(0)
 	}
 
-	exporter, err := NewExporter(opts)
+	c, err := newCentClient(opts)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	exporter, err := NewExporter(c)
 	if err != nil {
 		log.Fatalln(err)
 	}
