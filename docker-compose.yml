@@ -1,0 +1,18 @@
+version: '3'
+services:
+
+  exporter:
+    depends_on:
+      - centrifugo
+    image: nordicdyno/centrifugo_exporter
+    command: -centrifugo.server=http://centrifugo:8000 -centrifugo.secret=
+    ports:
+      - "9315:9315"
+
+  centrifugo:
+    image: centrifugo/centrifugo:1.7.5
+    command: centrifugo --insecure_api
+    environment:
+      - CENTRIFUGO_SECRET=
+    ports:
+      - "8000:8000"

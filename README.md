@@ -3,7 +3,18 @@
 [![Docker build](https://img.shields.io/docker/build/nordicdyno/centrifugo_exporter.svg)][hub]
 [![Docker Pulls](https://img.shields.io/docker/pulls/nordicdyno/centrifugo_exporter.svg)][hub]
 
-prometheus exporter for [centrifugo](https://github.com/centrifugal/centrifugo) server
+prometheus exporter for [Centrifugo](https://github.com/centrifugal/centrifugo) server
+
+## how to run and test
+
+with existing Centrifugo instance:
+
+    docker run -p 9315:9315 nordicdyno/centrifugo_exporter -centrifugo.server=CENTRIFUGO_ADDRESS -centrifugo.secret=CENTRIFUGO_SECRET -centrifugo.timeout=1s
+
+just testing with Centrifugo in docker:
+
+    docker-compose up
+    curl http://localhost:9315/metrics
 
 ## how it works
 
