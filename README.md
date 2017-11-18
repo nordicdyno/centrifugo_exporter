@@ -1,5 +1,8 @@
 # Centrifugo exporter [![Build Status](https://travis-ci.org/nordicdyno/centrifugo_exporter.svg)][travis]
 
+[![Docker build](https://img.shields.io/docker/build/nordicdyno/centrifugo_exporter.svg)][hub]
+[![Docker Pulls](https://img.shields.io/docker/pulls/nordicdyno/centrifugo_exporter.svg)][hub]
+
 prometheus exporter for [centrifugo](https://github.com/centrifugal/centrifugo) server
 
 ## how it works
@@ -36,13 +39,12 @@ Metrics list:
 * `node_num_client_msg_published` - number of messages published
 * `http_api_num_requests` - number of requests to server HTTP API
 
-All metrics are exported as gauges for simplicity (should change in near future)
-
 ## TODO
 
-* use counters in exported metrics for actual counters
+* more counters and gauges (probaly add all of them)
 * register port on https://github.com/prometheus/prometheus/wiki/Default-port-allocations
+* export percentiles
 * binaries on releases page
-* docker support
 
 [travis]: https://travis-ci.org/nordicdyno/centrifugo_exporter
+[hub]: https://hub.docker.com/r/nordicdyno/centrifugo_exporter/
