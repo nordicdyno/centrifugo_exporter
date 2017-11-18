@@ -174,7 +174,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 func main() {
 	var (
 		showVersion   = flag.Bool("version", false, "Print version information.")
-		listenAddress = flag.String("web.listen-address", ":9273", "Address to listen on for web interface and telemetry.")
+		listenAddress = flag.String("web.listen-address", ":9315", "Address to listen on for web interface and telemetry.")
 		metricsPath   = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 
 		opts = centOpts{}
