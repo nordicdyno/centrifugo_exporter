@@ -25,10 +25,10 @@ var VERSION = "unknown"
 // Exporter collects Centrifugo stats from the given server and exports them using
 // the prometheus metrics package.
 type Exporter struct {
-	mutex        sync.Mutex
-	client       *gocent.Client
-	up           prometheus.Gauge
-	gaugeMetrics map[string]*prometheus.GaugeVec
+	mutex   sync.Mutex
+	client  *gocent.Client
+	up      prometheus.Gauge
+	metrics map[string]metricDesc
 }
 
 type centOpts struct {
@@ -57,33 +57,72 @@ func newCentClient(opts centOpts) (*gocent.Client, error) {
 	return c, nil
 }
 
+type metricDesc struct {
+	desc      *prometheus.Desc
+	valueType prometheus.ValueType
+}
+
+func newGaugeDesc(name string, desc string) metricDesc {
+	return metricDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", name),
+			desc,
+			nil, nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
+}
+
+func newCounterDesc(name string, desc string) metricDesc {
+	return metricDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", name),
+			desc,
+			nil, nil,
+		),
+		valueType: prometheus.CounterValue,
+	}
+}
+
 // NewExporter returns an initialized Exporter.
 func NewExporter(centClient *gocent.Client) (*Exporter, error) {
-	gmm := map[string]*prometheus.GaugeVec{
-		"client_bytes_in": newGaugeMetric("client_bytes_in_total",
-			"number of bytes coming to client API (bytes sent from clients)", nil),
-		"client_bytes_out": newGaugeMetric("client_bytes_out_total",
-			"number of bytes coming out of client API (bytes sent to clients)", nil),
-		"client_num_connect": newGaugeMetric("client_num_connect",
-			"number of connections of client API", nil),
-		"client_num_msg_published": newGaugeMetric("client_num_msg_published",
-			"number of messages published via client API", nil),
-		"client_num_msg_queued": newGaugeMetric("client_num_msg_queued",
-			"number of messages put into client queues", nil),
-		"client_num_msg_sent": newGaugeMetric("client_num_msg_sent",
-			"number of messages actually sent to client", nil),
-		"client_num_subscribe": newGaugeMetric("client_num_subscribe",
-			"subscribes via client API", nil),
-		"node_num_clients": newGaugeMetric("node_num_clients",
-			"number of connected authorized clients", nil),
-		"node_num_unique_clients": newGaugeMetric("node_num_unique_clients",
-			"number of unique clients connected", nil),
-		"node_num_channels": newGaugeMetric("node_num_channels",
-			"number of active channels", nil),
-		"node_num_client_msg_published": newGaugeMetric("node_num_client_msg_published",
-			"number of messages published", nil),
-		"http_api_num_requests": newGaugeMetric("http_api_num_requests",
-			"number of requests to server HTTP API", nil),
+	m := map[string]metricDesc{
+		"client_bytes_in": newCounterDesc(
+			"client_bytes_in_total",
+			"number of bytes coming to client API (bytes sent from clients)"),
+		"client_bytes_out": newCounterDesc(
+			"client_bytes_out_total",
+			"number of bytes coming out of client API (bytes sent to clients)"),
+		"client_num_connect": newCounterDesc(
+			"client_num_connect",
+			"number of connections of client API"),
+		"client_num_msg_published": newCounterDesc(
+			"client_num_msg_published",
+			"number of messages published via client API"),
+		"client_num_msg_queued": newCounterDesc(
+			"client_num_msg_queued",
+			"number of messages put into client queues"),
+		"client_num_msg_sent": newCounterDesc(
+			"client_num_msg_sent",
+			"number of messages actually sent to client"),
+		"client_num_subscribe": newCounterDesc(
+			"client_num_subscribe",
+			"subscribes via client API"),
+		"node_num_clients": newGaugeDesc(
+			"node_num_clients",
+			"number of connected authorized clients"),
+		"node_num_unique_clients": newGaugeDesc(
+			"node_num_unique_clients",
+			"number of unique clients connected"),
+		"node_num_channels": newGaugeDesc(
+			"node_num_channels",
+			"number of active channels"),
+		"node_num_client_msg_published": newCounterDesc(
+			"node_num_client_msg_published",
+			"number of messages published"),
+		"http_api_num_requests": newCounterDesc(
+			"http_api_num_requests",
+			"number of requests to server HTTP API"),
 	}
 
 	return &Exporter{
@@ -91,29 +130,18 @@ func NewExporter(centClient *gocent.Client) (*Exporter, error) {
 		up: prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace: namespace,
 			Name:      "up",
-			Help:      "Was the last scrape of haproxy successful.",
+			Help:      "Was the last scrape of centrifugo successful.",
 		}),
-		gaugeMetrics: gmm,
+		metrics: m,
 	}, nil
-}
-
-func newGaugeMetric(metricName string, docString string, constLabels prometheus.Labels) *prometheus.GaugeVec {
-	return prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace:   namespace,
-			Name:        metricName,
-			Help:        docString,
-			ConstLabels: constLabels,
-		},
-		nil,
-	)
 }
 
 // Describe describes all the metrics ever exported by the Centrifugo exporter. It
 // implements prometheus.Collector.
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
-	for _, m := range e.gaugeMetrics {
-		m.Describe(ch)
+	for _, m := range e.metrics {
+		ch <- m.desc
+		// m.Describe(ch)
 	}
 	ch <- e.up.Desc()
 }
@@ -121,33 +149,24 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 // Collect fetches the stats from configured Centrifugo location and delivers them
 // as Prometheus metrics. It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
-	// TODO: check is necessary
-	e.mutex.Lock() // To protect metrics from concurrent collects.
+	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
-	for _, m := range e.gaugeMetrics {
-		m.Reset()
+	nodemetrics, scrapeErr := nodeMetrics(e.client)
+	e.up.Set(1)
+	if scrapeErr != nil {
+		e.up.Set(0)
+		log.Printf("Can't scrape centrifugo on %v: %v", e.client.Endpoint, scrapeErr)
 	}
-	e.scrape()
 
 	ch <- e.up
-	for _, m := range e.gaugeMetrics {
-		m.Collect(ch)
-	}
-}
-
-func (e *Exporter) scrape() {
-	metrics, err := nodeMetrics(e.client)
-	if err != nil {
-		e.up.Set(0)
-		log.Printf("Can't scrape centrifugo: %v", err)
+	if scrapeErr != nil {
 		return
 	}
-
-	e.up.Set(1)
-	for name, value := range metrics {
-		if gauge, ok := e.gaugeMetrics[name]; ok {
-			gauge.WithLabelValues().Set(value)
+	for name, value := range nodemetrics {
+		if m, ok := e.metrics[name]; ok {
+			// gauge.WithLabelValues().Set(value)
+			ch <- prometheus.MustNewConstMetric(m.desc, m.valueType, value)
 		}
 	}
 }
@@ -192,6 +211,6 @@ func main() {
              </html>`))
 	})
 
-	log.Println("Listening on ", *listenAddress)
+	log.Println("listening on", *listenAddress)
 	log.Fatal(http.ListenAndServe(*listenAddress, nil))
 }
