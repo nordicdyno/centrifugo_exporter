@@ -25,24 +25,23 @@ Supports most important metrics for now, ignores aggregates like percentiles cal
 
 Metrics list:
 
-* `up` - is scrape succesful or not
-* `client_bytes_in_total` - number of bytes coming to client API (bytes sent from clients)
-* `client_bytes_out_total` - number of bytes coming out of client API (bytes sent to clients)
-* `client_num_connectz` - number of connections of client API
-* `client_num_msg_published` - number of messages published via client API
-* `client_num_msg_queued` - number of messages put into client queues
-* `client_num_msg_sent`- number of messages actually sent to client
+* `up` - gauge states is current scrape successful or not
+* `client_bytes_in_total` - client API inbound traffic (bytes sent from clients)
+* `client_bytes_out_total` - client API outbound traffic (bytes sent to clients)
+* `client_num_connectz` - connections of client API
+* `client_num_msg_published` - messages published via client API
+* `client_num_msg_queued` - messages put into client queues
+* `client_num_msg_sent`- messages actually sent to client
 * `client_num_subscribe` - subscribes via client API
-* `node_num_clients` - number of connected authorized clients
-* `node_num_unique_clients` - number of unique clients connected
-* `node_num_channels` - number of active channels
-* `node_num_client_msg_published` - number of messages published
-* `http_api_num_requests` - number of requests to server HTTP API
+* `node_num_clients` - current number of connected authorized clients
+* `node_num_unique_clients` - current number of unique clients connected
+* `node_num_channels` - current number of active channels
+* `node_num_client_msg_published` -  messages published
+* `http_api_num_requests` - requests to server HTTP API
 
 ## TODO
 
-* more counters and gauges (probaly add all of them)
-* register port on https://github.com/prometheus/prometheus/wiki/Default-port-allocations
+* more counters and gauges (probably to add all of them)
 * export percentiles
 * binaries on releases page
 
