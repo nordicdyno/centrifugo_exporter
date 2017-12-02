@@ -52,9 +52,9 @@ Metrics list:
 
 ## TODO
 
-* more counters and gauges (probably to add all of them)
+* more counters and gauges (probably adding all of them)
 * export percentiles
-* binaries on releases page
+* switch on `dep` tool
 
 [travis]: https://travis-ci.org/nordicdyno/centrifugo_exporter
 [hub]: https://hub.docker.com/r/nordicdyno/centrifugo_exporter/
